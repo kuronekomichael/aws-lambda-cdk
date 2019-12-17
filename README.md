@@ -3,7 +3,7 @@ CDKサンプル
 
 esa.ioの利用状況をSlackへ出力するLambda をCDKで作るﾏﾝ
 
-# Prerequipment
+# Prerequirement
 
 cdkがないと始まらない
 ```
