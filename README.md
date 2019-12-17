@@ -27,7 +27,7 @@ aws ssm put-parameter \
 
 # (2) SlackのWebHookURLのトークンをSSMに保存する
 aws ssm put-parameter \
-    --cli-input-json '{"Name": "/CDK/EsaStats2Slack/SLACK_WEBHOOK_TOKEN", "Type": "SecureString",  "Value": "GSsfaadseeFTT/GDTgasdfga/fsdf2i2i", "Description": "Incomming Webhook token for hasigo.slack.com #esa"}'
+    --cli-input-json '{"Name": "/CDK/EsaStats2Slack/SLACK_WEBHOOK_TOKEN", "Type": "SecureString",  "Value": "GSsfaadseeFTT/GDTgasdfga/fsdf2i2i", "Description": "Incomming Webhook token for xxxxx.slack.com"}'
 ```
 
 # Deploy
