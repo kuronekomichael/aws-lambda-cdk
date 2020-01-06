@@ -9,7 +9,7 @@ export class TmpStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Lambda用IAMロール
+    // IAM Role for Lambda
     const iamRoleForLambda = new iam.Role(this, 'IAMRoleForLamda', {
       roleName: 'ssm-secure-string-lambda-role',
       assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
@@ -28,25 +28,31 @@ export class TmpStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_10_X,
     });
 
-    // CloudWatch events cron定義
-    const stackConfig = {
-      events: {
-        cron: "0 1 L * ? *" // 月末日のAM10時
-        // Minutes:      0 = 0分
-        // Hours:        1 = GMT1:00(日本時間では10:00)
-        // Day-of-month: L = 月末日
-        // Month:        * = 毎月
-        // Day-of-week:  ? = いずれかの曜日
-        // Year:         * = 毎年
-      },
-    };
-
-    const timerRule = new events.Rule(this, 'timerRule', {
-      schedule: events.Schedule.expression(`cron(${stackConfig.events.cron})`)
+    const eventTargetLambda = new targets.LambdaFunction(lambdaFn, {
+      event: events.RuleTargetInput.fromObject({/* event parameters */})
     });
 
-    timerRule.addTarget(new targets.LambdaFunction(lambdaFn, {
-      event: events.RuleTargetInput.fromObject({/* event parameters */})
-    }));
+    // Cron
+    const timerRuleEndOfMonth = new events.Rule(this, 'timerRuleEndOfMonth', {
+      schedule: events.Schedule.expression(`cron(0 1 L * ? *)`), // 月末日のAM10時
+      //                                         │ │ │ │ │ └ Year
+      //                                         │ │ │ │ └ Day-of-week (?=いずれかの曜日)
+      //                                         │ │ │ └ Month
+      //                                         │ │ └ Day-of-month
+      //                                         │ └ Hours(UTC)
+      //                                         └ Minutes
+    });
+    const timerRuleBeginningOfMonth = new events.Rule(this, 'timerRuleBeginningOfMonth', {
+      schedule: events.Schedule.expression(`cron(0 1 1 * ? *)`), // 月末日のAM10時
+      //                                         │ │ │ │ │ └ Year
+      //                                         │ │ │ │ └ Day-of-week (?=いずれかの曜日)
+      //                                         │ │ │ └ Month
+      //                                         │ │ └ Day-of-month
+      //                                         │ └ Hours(UTC)
+      //                                         └ Minutes
+    });
+
+    timerRuleEndOfMonth.addTarget(eventTargetLambda);
+    timerRuleBeginningOfMonth.addTarget(eventTargetLambda);
   }
 }
