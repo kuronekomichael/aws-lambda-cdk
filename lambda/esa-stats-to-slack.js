@@ -22,6 +22,10 @@ const getTeams = async (param) => {
 
 const getTeamMembers = async (teamName, param) => {
     const ret = await callEsaApi(`/teams/${teamName}/members`, param.token);
+    if (ret.error === 'payment_required') {
+        console.error(`💸 accrued team: ${teamName}`);
+        return [];
+    }
     if (ret.total_count !== ret.members.length) {
         console.error(`💀Oops! Paging is not implemented at GET /teams/:name/members. ${ret.total_count} !== ${ret.members.length}`);
     }
